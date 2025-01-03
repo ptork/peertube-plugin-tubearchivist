@@ -1,13 +1,13 @@
 {
-  "name": "peertube-plugin-quickstart-typescript",
-  "description": "PeerTube plugin quickstart typescript",
-  "version": "1.0.0",
+  "name": "peertube-plugin-tubearchivist",
+  "description": "PeerTube plugin tubearchivist",
+  "version": "0.1.0",
   "license": "AGPL-3.0",
   "author": {
-    "name": "John Livingston",
-    "url": "https://github.com/JohnXLivingston"
+    "name": "ptork",
+    "url": "https://github.com/ptork"
   },
-  "bugs": "https://github.com/JohnXLivingston/peertube-plugin-quickstart-typescript/issues",
+  "bugs": "https://github.com/ptork/peertube-plugin-tubearchivist/issues",
   "clientScripts": [
     {
       "script": "dist/client/common-client-plugin.js",
@@ -22,7 +22,7 @@
   "engine": {
     "peertube": ">=4.2.0"
   },
-  "homepage": "https://github.com/JohnXLivingston/peertube-plugin-quickstart-typescript",
+  "homepage": "https://github.com/ptork/peertube-plugin-tubearchivist",
   "keywords": [
     "peertube",
     "plugin"
@@ -49,6 +49,7 @@
   "devDependencies": {
     "@peertube/peertube-types": "^4.2.2",
     "@tsconfig/node16": "^1.0.3",
+    "@types/node": "^22.10.4",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
     "esbuild": "^0.14.36",

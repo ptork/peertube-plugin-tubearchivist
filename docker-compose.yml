@@ -1,0 +1,127 @@
+services:
+  tubearchivist:
+    image: bbilly1/tubearchivist:v0.4.12
+    container_name: tubearchivist-app
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    volumes:
+      - youtube:/youtube:rw
+      - cache:/cache:rw
+    environment:
+      - ES_URL=http://tubearchivist-elastic:9200
+      - REDIS_HOST=tubearchivist-redis
+      - TA_HOST=ptork.test
+      - TA_USERNAME=admin
+      - TA_PASSWORD=adminadminadmin
+      - ELASTIC_PASSWORD=elasticelasticelasticelastic
+      - TZ=Europe/Amsterdam
+      - DJANGO_DEBUG=true
+    depends_on:
+      - tubearchivist-elastic
+      - tubearchivist-redis
+    networks:
+      - peertube
+
+  tubearchivist-redis:
+    image: redis/redis-stack-server:7.4.0-v1-x86_64
+    container_name: tubearchivist-redis
+    restart: unless-stopped
+    volumes:
+      - redis:/data
+    depends_on:
+      - tubearchivist-elastic
+    networks:
+      - peertube
+
+  tubearchivist-elastic:
+    image: bbilly1/tubearchivist-es:8.14.3
+    container_name: tubearchivist-elastic
+    restart: unless-stopped
+    environment:
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - xpack.security.enabled=true
+      - discovery.type=single-node
+      - path.repo=/usr/share/elasticsearch/data/snapshot
+      - ELASTIC_PASSWORD=elasticelasticelasticelastic
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es:/usr/share/elasticsearch/data
+    networks:
+      - peertube
+
+  peertube:
+    image: chocobozzz/peertube:v7.0.0-bookworm
+    container_name: peertube
+    restart: always
+    ports:
+      - 9000:9000
+    environment:
+      - PEERTUBE_WEBSERVER_HOSTNAME=localhost
+      - PEERTUBE_WEBSERVER_PORT=9000
+      - PEERTUBE_WEBSERVER_HTTPS=false
+      - PEERTUBE_DB_NAME=postgres
+      - PEERTUBE_DB_USERNAME=postgres
+      - PEERTUBE_DB_PASSWORD=peertubepeertubepeertube
+      - PEERTUBE_DB_SSL=false
+      - PEERTUBE_DB_HOSTNAME=peertube-postgres
+      - PEERTUBE_TRUST_PROXY=["127.0.0.1", "loopback"]
+      - PEERTUBE_SECRET=supersecretkey
+      - PEERTUBE_ADMIN_EMAIL=admin@ptork.ptork
+      - admin_password=gogocebazixovugo
+      - PEERTUBE_OBJECT_STORAGE_UPLOAD_ACL_PUBLIC="public-read"
+      - PEERTUBE_OBJECT_STORAGE_UPLOAD_ACL_PRIVATE="private"
+      - PEERTUBE_LOG_LEVEL=info
+      - PEERTUBE_TRACKER_ENABLED=false
+      - PEERTUBE_REDIS_HOSTNAME=peertube-redis
+      - PEERTUBE_FEDERATION_PREVENT_SSRF=false
+    volumes:
+      - data:/data
+      - config:/config
+      - ./:/data/plugins/data/peertube-plugin-tubearchivist
+      - ./dns.js:/app/dist/core/helpers/dns.js
+      # - ./config.js:/app/dist/core/initializers/config.js
+      # - ./requests.js:/app/dist/core/helpers/requests.js
+    depends_on:
+      - peertube-redis
+      - peertube-postgres
+    networks:
+      - peertube
+
+  peertube-redis:
+    image: redis:7.4.1-alpine3.20
+    container_name: peertube-redis
+    restart: always
+    volumes:
+      - redis2:/data
+    networks:
+      - peertube
+
+  peertube-postgres:
+    container_name: peertube-postgres
+    image: postgres:17.2-alpine3.21
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=peertubepeertubepeertube
+      - TZ=Europe/Amsterdam
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - peertube
+
+volumes:
+  redis:
+  redis2:
+  es:
+  youtube:
+  cache:
+  data:
+  config:
+  postgres:
+
+networks:
+  peertube:
+    name: peertube
